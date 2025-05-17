@@ -1,0 +1,104 @@
+% ---------------------------------------------
+%                  INSTRUCTIONS 
+%----------------------------------------------
+
+% 1) Place this LaTeX file in your project folder structure
+%    and name it titelsida.tex.
+%    Then write \input{titelsida} after 
+%    \begin{document} in your main.tex file
+
+% 2) Write \usepackage{tikz} and
+%    \usepackage{graphicx} in your main.tex file 
+%    (before \begin{document})
+
+% 3) Fill in the information on the following lines:
+%    (Thesis number, thesis credits, 
+%    date of approval, thesis title,
+%    subtitle, and the names of the authors)
+
+%--------------------------------------------------
+%       DO NOT EDIT BELOW IF YOU DO NOT WANT 
+%           TO MODIFY THE TITLE PAGE
+%--------------------------------------------------
+
+\newcommand{\ThesisNumber}[1]{
+\begin{tikzpicture}[overlay, remember picture]
+\path (current page.north east) ++(-1,-1) node[below left] {{\small #1}};
+\end{tikzpicture}
+}
+
+\newcommand{\ThesisCredits}[1]{
+\begin{tikzpicture}[overlay, remember picture]
+\path (current page.north east) ++(-1,-1.5) node[below left] {{\normalsize \scshape Project #1}};
+\end{tikzpicture}
+}
+
+\newcommand{\ApprovalDate}[1]{
+\begin{tikzpicture}[overlay, remember picture]
+\path (current page.north east) ++(-1,-2.0) node[below left] {{\normalsize #1}};
+\end{tikzpicture}}
+
+\newcommand{\TitleAndSubtitle}[2]{
+\center
+\rule[0.2cm]{13cm}{0.1cm}
+{ \huge \bfseries #1}\\[0.4cm] % Main title
+{\Large \slshape #2}\\[0.4cm]   % Subtitle
+\rule[0.2cm]{13cm}{0.1cm}\\[3cm]
+}
+
+\newcommand{\Author}[2]{
+\begin{minipage}{1\textwidth}
+\normalsize
+\centering
+#1: \textsc{#2}\\
+\end{minipage}\\
+}
+
+\newcommand{\EnglishLogo}{
+\textsc{\Large 
+National Economics University, Vietnam}\\[1cm]
+\includegraphics[scale=0.4]{NEU_logo.png}\\[0.5cm]
+}
+
+\newcommand{\SupervisorInfo}[3]{%
+\vspace{1cm}
+\begin{flushleft}
+\textbf{Supervisor:} #1 \\
+\textbf{Email:} #2 \\
+\textbf{Phone:} #3 \\
+\end{flushleft}
+}
+
+% -----------------------------------------------
+%           TITLE PAGE STARTS HERE
+%------------------------------------------------
+\begin{titlepage}
+
+\center 
+ 
+%-------------------------------------------------
+%	INFORMATION TO BE FILLED IN
+%-------------------------------------------------
+
+%\ThesisNumber{XXX - xxx - XX}
+
+\ThesisCredits{15}
+
+\ApprovalDate{June 2021}
+
+\EnglishLogo
+
+\TitleAndSubtitle{Title of Project}{
+Course ID: Course name
+}
+\Author{Student ID 1}{Fullname Student 1}
+\Author{Student ID 2}{Fullname Student 2}
+\Author{Student ID 3}{Fullname Student 3}
+\Author{Student ID 3}{Fullname Student 4}
+\Author{Student ID 3}{Fullname Student 5}
+\SupervisorInfo{Dr. Hung Tran}{hung.tran@neu.edu.vn}
+{086-646-4048}
+
+\vfill
+
+\end{titlepage}

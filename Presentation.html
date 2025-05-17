@@ -1,0 +1,890 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Management System</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: sans-serif;
+            overflow: hidden; /* Hide scrollbars */
+        }
+
+        #presentation-container {
+            width: 90vw; /* Use 90% of viewport width */
+            max-width: 1280px; /* Max width for 16:9 at common resolutions */
+            aspect-ratio: 16 / 9; /* Maintain 16:9 aspect ratio */
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Hide content overflowing the 16:9 container */
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: transform 0.5s ease-in-out;
+            transform: translateX(100%); /* Initially off-screen to the right */
+            opacity: 0;
+            pointer-events: none; /* Disable interaction when hidden */
+        }
+
+        .slide.active {
+            transform: translateX(0); /* Active slide is on screen */
+            opacity: 1;
+            pointer-events: auto; /* Enable interaction for active slide */
+            position: relative; /* Active slide takes up space */
+        }        .slide-header {
+            width: 100%;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .slide-header h2 {
+            margin: 0;
+            text-align: left;
+            font-size: 1.8em;
+            color: #333;
+        }
+        
+        .header-logo {
+            height: 40px;
+            margin-left: auto;
+        }
+
+        .slide-body {
+            flex-grow: 1;
+            overflow-y: auto; /* Enable scrolling if content overflows vertically */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center content horizontally */            justify-content: center; /* Center content vertically if space allows */
+        }
+        
+        .slide-body img {
+            max-width: 95%; /* Ensure images fit within the body */
+            height: auto; /* Maintain aspect ratio */
+            display: block; /* Remove extra space below image */
+            margin: 10px auto; /* Center image and add some margin */
+            object-fit: contain; /* Maintain aspect ratio without cropping */
+        }
+        
+        .standard-size {
+            width: 700px; /* Fixed width to match 4.png */
+            height: 420px; /* Fixed height to ensure all images have the same size */
+            object-fit: contain; /* Maintain aspect ratio without distorting */
+        }
+
+        .slide-body pre {
+            width: 95%; /* Code block width */
+            max-height: 70%; /* Limit code block height */
+            overflow: auto; /* Add scrollbars to code blocks */
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            line-height: 1.4;
+            margin: 10px auto; /* Center code block */
+        }
+
+        .slide-body code {
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+        }
+
+        .slide-body .d3-chart {
+            width: 95%; /* D3 chart width */
+            max-height: 70%; /* Limit D3 chart height */
+            margin: 10px auto; /* Center chart */
+            display: block;
+        }
+
+        .navigation-buttons {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .navigation-buttons button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .navigation-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Specific styles for D3 charts */
+        .d3-chart svg {
+            display: block; /* Remove extra space below SVG */
+            margin: auto; /* Center SVG */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="presentation-container">        <div class="slide active">
+            <div class="slide-header">
+                <h2>Cinema Management System</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Overview of the system and its main modules.</p>
+                </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Technologies Used</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <ul>
+                    <li>**Programming Language**: Python</li>
+                    <li>**GUI Framework**: Tkinter</li>
+                    <li>**Database**: MySQL</li>
+                    <li>**Additional Libraries**: mysql-connector-python, python-dateutil, pillow, matplotlib, tkcalendar</li>
+                </ul>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>System Architecture</h2>\n                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>MVC (Model-View-Controller) Architecture</p>
+                <div id="mvc-chart" class="d3-chart"></div>
+                <script>
+                    const mvcData = [
+                        { name: "Model", description: "Handles logic and data" },
+                        { name: "View", description: "User interface" },
+                        { name: "Controller", description: "Connects Model and View" }
+                    ];
+
+                    const mvcWidth = 600;
+                    const mvcHeight = 200;
+                    const mvcSvg = d3.select("#mvc-chart")
+                        .append("svg")
+                        .attr("width", mvcWidth)
+                        .attr("height", mvcHeight);
+
+                    const nodeSize = 60;
+                    const nodes = mvcData.map((d, i) => ({
+                        id: d.name,
+                        x: (i + 0.5) * (mvcWidth / mvcData.length),
+                        y: mvcHeight / 2,
+                        description: d.description
+                    }));
+
+                    const links = [
+                        { source: "Controller", target: "Model" },
+                        { source: "Controller", target: "View" },
+                        { source: "Model", target: "View" }
+                    ];
+
+                     const simulation = d3.forceSimulation(nodes)
+                        .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+                        .force("charge", d3.forceManyBody().strength(-300))
+                        .force("center", d3.forceCenter(mvcWidth / 2, mvcHeight / 2))
+                        .force("x", d3.forceX(mvcWidth / 2).strength(0.1))
+                        .force("y", d3.forceY(mvcHeight / 2).strength(0.1));
+
+
+                    const link = mvcSvg.append("g")
+                        .attr("stroke", "#999")
+                        .attr("stroke-opacity", 0.6)
+                        .selectAll("line")
+                        .data(links)
+                        .join("line");
+
+                    const node = mvcSvg.append("g")
+                        .attr("stroke", "#fff")
+                        .attr("stroke-width", 1.5)
+                        .selectAll("circle")
+                        .data(nodes)
+                        .join("circle")
+                        .attr("r", nodeSize / 2)
+                        .attr("fill", "#69b3a2")
+                        .call(d3.drag()
+                            .on("start", dragstarted)
+                            .on("drag", dragged)
+                            .on("end", dragended));
+
+                    node.append("title")
+                        .text(d => d.description);
+
+                    const labels = mvcSvg.append("g")
+                        .attr("pointer-events", "none")
+                        .attr("text-anchor", "middle")
+                        .selectAll("text")
+                        .data(nodes)
+                        .join("text")
+                        .attr("font-size", 12)
+                        .attr("fill", "#333")
+                        .text(d => d.id);
+
+                    simulation.on("tick", () => {
+                        link
+                            .attr("x1", d => d.source.x)
+                            .attr("y1", d => d.source.y)
+                            .attr("x2", d => d.target.x)
+                            .attr("y2", d => d.target.y);
+
+                        node
+                            .attr("cx", d => d.x)
+                            .attr("cy", d => d.y);
+
+                        labels
+                            .attr("x", d => d.x)
+                            .attr("y", d => d.y + 5); // Adjust text position
+                    });
+
+                    function dragstarted(event, d) {
+                        if (!event.active) simulation.alphaTarget(0.3).restart();
+                        d.fx = d.x;
+                        d.fy = d.y;
+                    }
+
+                    function dragged(event, d) {
+                        d.fx = event.x;
+                        d.fy = event.y;
+                    }
+
+                    function dragended(event, d) {
+                        if (!event.active) simulation.alphaTarget(0);
+                        d.fx = null;
+                        d.fy = null;
+                    }
+                </script>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Database Structure</h2>              <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Key tables in the MySQL Database "CinemaDBcc".</p>
+                <ul>
+                    <li>Genres, Movies, CinemaRooms, Screenings, Customers, Tickets, CancelledTickets, Feedback, Staff, Promotions, BookingAudit</li>
+                </ul>
+                </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Connection Pooling</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Efficient database connection management.</p>
+                <pre><code class="language-python"># Database connector implementation (db_connector.py)
+class DatabaseConnector:
+    _pool = None # Use a class-level pool for connection sharing
+
+    def get_connection(self):
+        """
+        Main function: Creates or reuses a database connection pool
+        What it does:
+        1. Creates a connection pool if none exists
+        2. Gets a connection from the pool
+        3. Falls back to direct connection if pool is exhausted
+        4. Configures autocommit for transactions
+        """
+        # Simplified implementation
+        if DatabaseConnector._pool is None:
+            # Create connection pool
+            DatabaseConnector._pool = pooling.MySQLConnectionPool(
+                pool_name="mypool",
+                pool_size=20,
+                **DB_CONFIG
+            )
+            
+        # Get connection from pool
+        self.connection = DatabaseConnector._pool.get_connection()
+        self.connection.autocommit = True
+        return self.connection
+</code></pre>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Authentication System</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Login and role-based access control (Admin, Ticket Clerk).</p>
+                <img src="1.png" alt="Login interface" class="standard-size">
+                <pre><code class="language-python"># login_window.py - Logic
+def login(self):
+    """
+    Main function: Authenticates users with database credentials
+    What it does:
+    1. Gets username and password from input fields
+    2. Verifies credentials against database using secure hashing
+    3. Sets user role and permissions on successful login
+    """
+    # Get user input
+    username = self.username_var.get()
+    password = self.password_var.get()
+    role = self.role_var.get()
+
+    # Authenticate with hashed password
+    query = "SELECT UserID, Username, Role FROM Users WHERE Username = %s AND PasswordHash = SHA2(%s, 256)"
+    user = database.execute_query(query, [username, password])
+    
+    # Set authentication state
+    if user:
+        self.authenticated = True
+        self.selected_role = role
+</code></pre>
+            </div>        </div>
+        <div class="slide">
+            <div class="slide-header">
+                <h2>Movie Management</h2>
+                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Add, edit, delete movies, manage genres.</p>
+                <img src="4.png" alt="Movie management interface" class="standard-size">
+                <pre><code class="language-python"># From movie_model.py
+class MovieModel:
+    def __init__(self):
+        self.db = DatabaseConnector()
+
+    def add_movie(self, title, genre_id, duration):
+        """
+        Main function: Creates a new movie record
+        What it does:
+        1. Inserts movie data into the Movies table
+        2. Returns the new MovieID for further operations
+        """
+        query = """
+        INSERT INTO Movies (MovieTitle, GenreID, DurationMinutes)
+        VALUES (%s, %s, %s)
+        """
+        return self.db.execute_query(query, (title, genre_id, duration))
+
+    def update_movie(self, movie_id, title, genre_id, duration):
+        """
+        Main function: Updates an existing movie's information
+        What it does: Updates title, genre and duration for a specific movie
+        """
+        query = "UPDATE Movies SET MovieTitle = %s WHERE MovieID = %s"
+        self.db.execute_query(query, (title, movie_id))
+</code></pre>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Cinema Room Management</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Configure cinema rooms and seating capacity.</p>
+                <img src="5.png" alt="Cinema room management interface" class="standard-size">
+                <pre><code class="language-python"># From cinema_room_model.py
+class CinemaRoomModel:
+    def __init__(self):
+        self.db = DatabaseConnector()
+
+    def add_room(self, room_name, capacity):
+        """
+        Main function: Creates a new cinema room
+        What it does: Registers a room with name and seating capacity
+        """
+        query = "INSERT INTO CinemaRooms (RoomName, Capacity) VALUES (%s, %s)"
+        return self.db.execute_query(query, (room_name, capacity))
+
+    def update_room(self, room_id, room_name, capacity):
+        """
+        Main function: Updates room information
+        What it does: Modifies a room's name or seating capacity
+        """
+        query = "UPDATE CinemaRooms SET RoomName = %s WHERE RoomID = %s"
+        self.db.execute_query(query, (room_name, room_id))
+</code></pre>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Screening Management</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Schedule movie screenings, view occupancy rates.</p>
+                <img src="10.png" alt="Screening management interface" class="standard-size">
+                <pre><code class="language-python"># From screening_model.py
+class ScreeningModel:
+    def __init__(self):
+        self.db = DatabaseConnector()
+
+    def add_screening(self, movie_id, room_id, screening_date, screening_time):
+        """
+        Main function: Schedules a new movie screening
+        What it does: Creates a screening with movie, room, date and time
+        """
+        query = "INSERT INTO Screenings (MovieID, RoomID, ScreeningDate) VALUES (%s, %s, %s)"
+        return self.db.execute_query(query, (movie_id, room_id, screening_date))
+
+    def get_seat_availability(self, screening_id, force_fresh=False):
+        """
+        Main function: Checks available seats
+        What it does: Calculates remaining seats by subtracting sold tickets from room capacity
+        """
+        query = """
+            SELECT
+                r.Capacity,
+                (r.Capacity - COUNT(t.TicketID)) AS AvailableSeats
+            FROM Screenings s
+            JOIN CinemaRooms r ON s.RoomID = r.RoomID
+            LEFT JOIN Tickets t ON s.ScreeningID = t.ScreeningID
+            WHERE s.ScreeningID = %s
+            GROUP BY r.Capacity
+        """
+        result = self.db.execute_query(query, [screening_id])
+        return result[0] if result else None
+</code></pre>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Customer Management</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Register, manage information, search customers.</p>
+                <img src="9.png" alt="Customer management interface" class="standard-size">
+                <pre><code class="language-python"># From customer_model.py
+class CustomerModel:
+    def __init__(self):
+        self.db = DatabaseConnector()
+
+    def get_customer_by_phone(self, phone_number):
+        """
+        Main function: Looks up customer by phone number
+        What it does: Searches database for customer with matching phone number
+        """
+        query = "SELECT CustomerID, CustomerName FROM Customers WHERE PhoneNumber = %s"
+        result = self.db.execute_query(query, (phone_number,))
+        return result[0] if result else None
+
+    def add_customer(self, name, phone_number):
+        """
+        Main function: Registers a new customer
+        What it does: Creates customer record with name and phone number
+        """        query = "INSERT INTO Customers (CustomerName, PhoneNumber) VALUES (%s, %s)"
+        return self.db.execute_query(query, (name, phone_number))
+</code></pre>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Feedback Management</h2>
+                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Add, edit, manage customer feedback and ratings for movies.</p>
+                <img src="8.png" alt="Feedback management interface" class="standard-size">
+                <pre><code class="language-python"># From feedback_model.py
+class FeedbackModel:
+    def __init__(self):
+        self.db = DatabaseConnector()
+    
+    def add_feedback(self, customer_id, movie_id, rating, comment):
+        """
+        Main function: Records customer feedback for a movie
+        What it does: 
+        1. Stores rating (1-5 stars) and text comment
+        2. Links feedback to specific movie and customer
+        3. Timestamps the feedback with current date
+        """
+        query = """
+        INSERT INTO Feedback (CustomerID, MovieID, Rating, Comment, FeedbackDate)
+        VALUES (%s, %s, %s, %s, CURDATE())
+        """
+        return self.db.execute_query(query, (customer_id, movie_id, rating, comment))
+    
+    def get_average_rating_by_movie(self, movie_id):
+        """
+        Main function: Calculates movie rating
+        What it does: Returns average star rating and count of reviews
+        """
+        query = """
+        SELECT AVG(Rating) as AverageRating, COUNT(*) as RatingCount
+        FROM Feedback
+        WHERE MovieID = %s
+        """
+        result = self.db.execute_query(query, (movie_id,))
+        return result[0] if result else {"AverageRating": 0, "RatingCount": 0}
+</code></pre>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Ticket Booking</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Book tickets for screenings, visual seat selection, cancel tickets.</p>
+                <img src="11.png" alt="Ticket booking interface" class="standard-size">
+                <pre><code class="language-python"># ticket_model.py 
+def book_ticket(self, customer_id, screening_id, seat_number, username=None):
+    """
+    Main function: Books a ticket for a customer with audit tracking
+    What it does:
+    1. Sets the current user for audit logging
+    2. Calls a stored procedure to handle the booking
+    3. Records the transaction in the audit log
+    4. Commits the transaction
+    """
+    try:
+        # Set user context for audit
+        self.db.execute_query("SET @current_user = %s", [username or 'system'])
+        
+        # Call booking procedure
+        self.db.execute_query(
+            "CALL sp_book_ticket(%s, %s, %s)",
+            [customer_id, screening_id, seat_number]
+        )
+        
+        # Reset user context
+        self.db.execute_query("SET @current_user = NULL")
+        
+        return True
+    except Exception as e:
+        return False
+</code></pre>
+            </div>
+        </div>         <div class="slide">
+            <div class="slide-header">
+                <h2>Visual Seat Selection</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Interface for displaying and selecting seats.</p>
+                <img src="11.png" alt="Seat selection interface" class="standard-size">
+                <pre><code class="language-python"># From ticket_booking.py - Creating seat layout
+def create_seat_layout(self, capacity=100):
+    """
+    Main function: Creates visual seat selection interface
+    What it does:
+    1. Clears previous seat layout
+    2. Gets list of already occupied seats
+    3. Creates a grid of buttons representing theater seats
+    4. Color-codes seats (green=available, red=occupied)
+    5. Sets up click handlers for seat selection
+    """
+    # Clear previous layout
+    for widget in self.seats_frame.winfo_children():
+        widget.destroy()
+
+    # Get occupied seats
+    occupied_seats = self.ticket_model.get_occupied_seats(self.selected_screening_id)
+    
+    # Create seat grid
+    rows = 10  # Theater rows A-J
+    row_labels = [chr(65 + i) for i in range(rows)]
+    
+    # Draw seat buttons
+    for row_idx, row_letter in enumerate(row_labels):
+        for col in range(1, 11):  # 10 seats per row
+            seat_id = f"{row_letter}{col}"
+            is_occupied = seat_id in occupied_seats
+            
+            # Create button with appropriate color
+            btn = tk.Button(self.seats_frame, text=seat_id, 
+                bg="red" if is_occupied else "green",
+                command=lambda s=seat_id: self.select_seat(s))
+            btn.grid(row=row_idx, column=col)            self.seat_buttons[seat_id] = btn
+</code></pre>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Reporting</h2>
+                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Revenue reports, occupancy rates, popular movies.</p>
+                <img src="2.png" alt="Reporting interface" class="standard-size" style="width: 700px; height: 350px; object-fit: contain;">
+                <pre><code class="language-python"># From report_model.py
+class ReportModel:
+    def __init__(self):
+        self.db = DatabaseConnector()
+        
+    def get_daily_revenue(self, date, force_refresh=False):
+        """
+        Main function: Calculates daily revenue
+        What it does: 
+        1. Queries database for all tickets sold on a specific date
+        2. Sums up the ticket prices for accurate revenue reporting
+        3. Uses database function for optimization
+        """
+        query = "SELECT fn_total_revenue_by_date(%s) AS Revenue"
+        result = self.db.execute_query(query, [date])
+        
+        if result and len(result) > 0:
+            return float(result[0]["Revenue"])
+        return 0.0
+    
+    def get_popular_movies(self):
+        """
+        Main function: Identifies popular movies
+        What it does: 
+        1. Counts tickets sold for each movie
+        2. Ranks movies by ticket sales
+        3. Helps management identify top-performing films
+        """
+        query = """
+        SELECT m.MovieID, m.MovieTitle, COUNT(t.TicketID) AS TicketCount
+        FROM Movies m
+        JOIN Screenings s ON m.MovieID = s.MovieID
+        JOIN Tickets t ON s.ScreeningID = t.ScreeningID
+        GROUP BY m.MovieID, m.MovieTitle        ORDER BY TicketCount DESC
+        """
+        return self.db.execute_query(query)
+</code></pre>
+            </div>        </div>
+        <div class="slide">
+            <div class="slide-header">
+                <h2>Occupancy Rates (Visualization)</h2>
+                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">            </div>
+            <div class="slide-body">
+                <p>Visualization of screening occupancy rates.</p>
+                <img src="3.png" alt="Occupancy rate chart" class="standard-size" style="width: 700px; height: 350px; object-fit: contain;">
+                <pre><code class="language-python"># From report_model.py
+def get_occupancy_rates(self):
+    """
+    Main function: Calculates theater occupancy percentages
+    What it does:
+    1. For each screening, calculates the ratio of sold seats to total seats
+    2. Provides metrics to identify underutilized screenings
+    3. Helps optimize theater scheduling and pricing
+    """
+    query = """
+    SELECT s.ScreeningID, m.MovieTitle, r.RoomName, 
+           s.ScreeningDate, s.ScreeningTime,
+           fn_occupancy_rate(s.ScreeningID) AS OccupancyRate
+    FROM Screenings s
+    JOIN Movies m ON s.MovieID = m.MovieID
+    JOIN CinemaRooms r ON s.RoomID = r.RoomID
+    ORDER BY s.ScreeningDate, s.ScreeningTime
+    """
+    return self.db.execute_query(query)
+</code></pre>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Database Backup</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Automated MySQL database backup.</p>
+                <pre><code class="language-python"># From backup_db.py
+import subprocess
+import datetime
+import os
+
+def backup_mysql_db(user, password, db_name, backup_dir="backups", mysqldump_path="mysqldump"):
+    """
+    Main function: Creates database backups
+    What it does:
+    1. Creates a timestamp-based filename
+    2. Runs mysqldump to export database schema and data
+    3. Saves the backup to specified directory
+    """
+    # Create backup directory
+    os.makedirs(backup_dir, exist_ok=True)
+    
+    # Create timestamped filename
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_file = f"{db_name}_backup_{timestamp}.sql"
+    
+    # Run mysqldump command
+    cmd = [mysqldump_path, "-u", user, f"-p{password}", db_name]
+    
+    # Save output to file
+    with open(os.path.join(backup_dir, backup_file), "w") as f:
+        subprocess.run(cmd, stdout=f)
+    
+    print(f"Backup completed: {backup_file}")
+</code></pre>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>User Roles</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <ul>
+                    <li>**Administrator**: Full access to all features.</li>
+                    <li>**Ticket Clerk**: Limited access to ticket-related features.</li>
+                </ul>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Technical Features</h2>               <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <ul>
+                    <li>Connection Pooling</li>
+                    <li>Transaction Management</li>
+                    <li>Audit Logging</li>
+                    <li>Data Visualization (Matplotlib)</li>
+                    <li>Auto-completion</li>
+                    <li>Database Views and Functions</li>
+                </ul>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>File Structure</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <pre><code>
+.
+├── config.py
+├── main.py
+├── database/
+│   ├── db_connector.py
+│   ├── backup_db.py
+│   └── data.sql
+├── models/
+│   ├── cinema_room_model.py
+│   ├── customer_model.py
+│   ├── feedback_model.py
+│   ├── movie_model.py
+│   ├── report_model.py
+│   ├── screening_model.py
+│   └── ticket_model.py
+└── gui/
+    ├── login_window.py
+    ├── main_window.py
+    ├── movie_management.py
+    ├── screening_management.py
+    ├── customer_management.py
+    ├── ticket_booking.py
+    ├── reports.py
+    ├── feedback_management.py
+    ├── ticket_history.py
+    └── cinema_room_management.py
+                </code></pre>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Setup and Deployment</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Basic steps to set up and run the system.</p>
+                <pre><code class="language-bash">
+# 1. Create virtual environment
+python -m venv .venv
+
+# 2. Activate environment
+.\.venv\Scripts\Activate.ps1  # Windows
+source ./.venv/bin/activate # macOS/Linux
+
+# 3. Install libraries
+pip install -r requirements.txt
+
+# 4. Initialize database (run SQL script)
+
+# 5. Run application
+python main.py
+                </code></pre>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Security Considerations</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <ul>
+                    <li>Role-based access control</li>
+                    <li>Password hashing (SHA-256)</li>
+                    <li>Transaction auditing</li>
+                    <li>Database connection security</li>
+                </ul>
+            </div>
+        </div>        <div class="slide">
+            <div class="slide-header">
+                <h2>Performance Optimization</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <ul>
+                    <li>Connection Pooling</li>
+                    <li>Indexing frequently queried columns</li>
+                    <li>Using SQL Views</li>
+                    <li>Caching mechanisms (optional)</li>
+                </ul>
+            </div>
+        </div>         <div class="slide">
+            <div class="slide-header">
+                <h2>Thank You</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+            </div>
+            <div class="slide-body">
+                <p>Thank you for your attention!</p>
+                </div>
+        </div>
+
+
+    </div>    <div class="navigation-buttons">
+        <button id="prev-slide">Previous</button>
+        <button id="next-slide">Next</button>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let currentSlideIndex = 0;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i < index) {
+                    slide.style.transform = 'translateX(-100%)'; // Move previous slides off-screen left
+                } else if (i > index) {
+                     slide.style.transform = 'translateX(100%)'; // Move next slides off-screen right
+                }
+            });
+            slides[index].classList.add('active');
+             slides[index].style.transform = 'translateX(0)'; // Bring active slide to center
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < slides.length - 1) {
+                currentSlideIndex++;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        document.getElementById('next-slide').addEventListener('click', nextSlide);
+        document.getElementById('prev-slide').addEventListener('click', prevSlide);
+
+        // Optional: Navigate with arrow keys
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight') {
+                nextSlide();
+            } else if (event.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Initial display
+        showSlide(currentSlideIndex);
+
+    </script>
+
+</body>
+</html>
+
