@@ -27,9 +27,7 @@
             flex-direction: column;
             overflow: hidden; /* Hide content overflowing the 16:9 container */
             position: relative;
-        }
-
-        .slide {
+        }        .slide {
             width: 100%;
             height: 100%;
             flex-shrink: 0;
@@ -43,23 +41,30 @@
             transition: transform 0.5s ease-in-out;
             transform: translateX(100%); /* Initially off-screen to the right */
             opacity: 0;
-            pointer-events: none; /* Disable interaction when hidden */
-        }
-
-        .slide.active {
+            pointer-events: none; /* Disable interaction when hidden */            background-image: url('background.avif');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay; /* Overlay blend mode for better clarity */
+            background-color: rgba(255, 255, 255, 0.4); /* More transparent white to show background better */
+        }.slide.active {
             transform: translateX(0); /* Active slide is on screen */
             opacity: 1;
             pointer-events: auto; /* Enable interaction for active slide */
             position: relative; /* Active slide takes up space */
-        }        .slide-header {
+            /* Keep the same background as other slides */
+        }.slide-header {
             width: 100%;
-            padding-bottom: 10px;
+            padding: 10px;
             border-bottom: 1px solid #eee;
             margin-bottom: 20px;
             box-sizing: border-box;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: center;            background-color: rgba(255, 255, 255, 0.75); /* Semi-transparent white background */
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(3px); /* Blur effect for better contrast with the background */
         }
 
         .slide-header h2 {
@@ -72,14 +77,20 @@
         .header-logo {
             height: 40px;
             margin-left: auto;
-        }
-
-        .slide-body {
+        }        .slide-body {
             flex-grow: 1;
             overflow-y: auto; /* Enable scrolling if content overflows vertically */
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center content horizontally */            justify-content: center; /* Center content vertically if space allows */
+            align-items: center; /* Center content horizontally */
+            justify-content: center; /* Center content vertically if space allows */
+            position: relative; /* Make sure content appears above background */
+            z-index: 1; /* Ensure content is above background */            background-color: rgba(255, 255, 255, 0.65); /* Semi-transparent background that shows the image but ensures content readability */
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(2px); /* Slight blur effect for better text contrast */
         }
         
         .slide-body img {
@@ -88,35 +99,69 @@
             display: block; /* Remove extra space below image */
             margin: 10px auto; /* Center image and add some margin */
             object-fit: contain; /* Maintain aspect ratio without cropping */
+        }        .standard-size {
+            width: 550px; /* Increased width */
+            height: 340px; /* Increased height by 10px */
+            object-fit: contain; /* Maintain aspect ratio without distorting */
+        }.slide-body p, .slide-body ul, .slide-body li {
+            color: #000; /* Dark text color */
+            font-weight: 600; /* Bolder text for better visibility */
+            text-shadow: 0px 0px 3px rgba(255, 255, 255, 0.9); /* Enhanced text shadow for better readability */
+            line-height: 1.5; /* Improved line spacing */
+        }        /* Smaller image size for specific slides */        .small-image {
+            width: 450px; /* Slightly increased width */
+            height: 280px; /* Increased height by 10px */
+            object-fit: contain; /* Maintain aspect ratio without distorting */
+        }/* Specific class for report and occupancy images (smaller height) */        .report-image {
+            width: 225px; /* Half the width of small-image */
+            height: 135px; /* Half the height of small-image */
+            object-fit: contain;
         }
         
-        .standard-size {
-            width: 700px; /* Fixed width to match 4.png */
-            height: 420px; /* Fixed height to ensure all images have the same size */
-            object-fit: contain; /* Maintain aspect ratio without distorting */
-        }
-
         .slide-body pre {
             width: 95%; /* Code block width */
             max-height: 70%; /* Limit code block height */
-            overflow: auto; /* Add scrollbars to code blocks */
-            background-color: #f4f4f4;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 0.9em;
-            line-height: 1.4;
+            overflow: auto; /* Add scrollbars to code blocks */            background-color: rgba(244, 244, 244, 0.9); /* More opaque code background for readability */
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            line-height: 1.5;
             margin: 10px auto; /* Center code block */
-        }
-
-        .slide-body code {
+            border: 1px solid rgba(0, 0, 0, 0.15); /* More visible border */
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15); /* Enhanced shadow */
+            backdrop-filter: blur(2px); /* Blur effect for better contrast */
+        }        .slide-body code {
             font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-        }
-
-        .slide-body .d3-chart {
+            font-weight: 500; /* Make code slightly bolder */
+            color: #222; /* Darker text for better contrast */
+        }        .slide-body .d3-chart {
             width: 95%; /* D3 chart width */
             max-height: 70%; /* Limit D3 chart height */
             margin: 10px auto; /* Center chart */
             display: block;
+        }
+        
+        /* Enhanced styling for list items to stand out against the background */
+        .slide-body ul {
+            padding-left: 25px;
+        }
+        
+        .slide-body li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 5px;
+        }
+          /* Style for markdown bold formatting */
+        .slide-body li strong, .slide-body p strong {
+            color: #000;
+            font-weight: 700;
+        }
+        
+        /* Specific class for movie.jpg to make it larger */
+        .movie-image {
+            width: 600px;
+            height: 360px;
+            object-fit: contain;
         }
 
         .navigation-buttons {
@@ -125,9 +170,7 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
-        }
-
-        .navigation-buttons button {
+        }        .navigation-buttons button {
             padding: 10px 20px;
             margin: 0 10px;
             font-size: 1em;
@@ -136,7 +179,9 @@
             border-radius: 5px;
             background-color: #007bff;
             color: white;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
         }
 
         .navigation-buttons button:hover {
@@ -151,16 +196,13 @@
 
     </style>
 </head>
-<body>
-
-    <div id="presentation-container">        <div class="slide active">
+<body>    <div id="presentation-container">        <div class="slide active">
             <div class="slide-header">
                 <h2>Cinema Management System</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
-            </div>
-            <div class="slide-body">
-                <p>Overview of the system and its main modules.</p>
+            </div>            <div class="slide-body">
+                <p>Overview of the system and its main modules.</p>                <img src="movie.jpg" alt="Cinema Theater" class="movie-image">
                 </div>
-        </div>        <div class="slide">
+        </div><div class="slide">
             <div class="slide-header">
                 <h2>Technologies Used</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
             </div>
@@ -174,7 +216,7 @@
             </div>
         </div>        <div class="slide">
             <div class="slide-header">
-                <h2>System Architecture</h2>\n                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
+                <h2>System Architecture</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
             </div>
             <div class="slide-body">
                 <p>MVC (Model-View-Controller) Architecture</p>
@@ -330,9 +372,8 @@ class DatabaseConnector:
             <div class="slide-header">
                 <h2>Authentication System</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
             </div>
-            <div class="slide-body">
-                <p>Login and role-based access control (Admin, Ticket Clerk).</p>
-                <img src="1.png" alt="Login interface" class="standard-size">
+            <div class="slide-body">                <p>Login and role-based access control (Admin, Ticket Clerk).</p>
+                <img src="1.png" alt="Login interface" class="small-image">
                 <pre><code class="language-python"># login_window.py - Logic
 def login(self):
     """
@@ -396,9 +437,8 @@ class MovieModel:
             <div class="slide-header">
                 <h2>Cinema Room Management</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
             </div>
-            <div class="slide-body">
-                <p>Configure cinema rooms and seating capacity.</p>
-                <img src="5.png" alt="Cinema room management interface" class="standard-size">
+            <div class="slide-body">                <p>Configure cinema rooms and seating capacity.</p>
+                <img src="5.png" alt="Cinema room management interface" class="small-image">
                 <pre><code class="language-python"># From cinema_room_model.py
 class CinemaRoomModel:
     def __init__(self):
@@ -463,10 +503,9 @@ class ScreeningModel:
         </div>        <div class="slide">
             <div class="slide-header">
                 <h2>Customer Management</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
-            </div>
-            <div class="slide-body">
+            </div>            <div class="slide-body">
                 <p>Register, manage information, search customers.</p>
-                <img src="9.png" alt="Customer management interface" class="standard-size">
+                <img src="9.png" alt="Customer management interface" class="standard-size" style="height: 380px; width: 600px;">
                 <pre><code class="language-python"># From customer_model.py
 class CustomerModel:
     def __init__(self):
@@ -534,9 +573,8 @@ class FeedbackModel:
             <div class="slide-header">
                 <h2>Ticket Booking</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
             </div>
-            <div class="slide-body">
-                <p>Book tickets for screenings, visual seat selection, cancel tickets.</p>
-                <img src="11.png" alt="Ticket booking interface" class="standard-size">
+            <div class="slide-body">                <p>Book tickets for screenings, visual seat selection, cancel tickets.</p>
+                <img src="11.png" alt="Ticket booking interface" class="small-image">
                 <pre><code class="language-python"># ticket_model.py 
 def book_ticket(self, customer_id, screening_id, seat_number, username=None):
     """
@@ -569,9 +607,8 @@ def book_ticket(self, customer_id, screening_id, seat_number, username=None):
             <div class="slide-header">
                 <h2>Visual Seat Selection</h2>                <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
             </div>
-            <div class="slide-body">
-                <p>Interface for displaying and selecting seats.</p>
-                <img src="11.png" alt="Seat selection interface" class="standard-size">
+            <div class="slide-body">                <p>Interface for displaying and selecting seats.</p>
+                <img src="11.png" alt="Seat selection interface" class="small-image">
                 <pre><code class="language-python"># From ticket_booking.py - Creating seat layout
 def create_seat_layout(self, capacity=100):
     """
@@ -612,9 +649,8 @@ def create_seat_layout(self, capacity=100):
                 <h2>Reporting</h2>
                 <img src="logo.jpg" alt="Cinema Logo" class="header-logo">
             </div>
-            <div class="slide-body">
-                <p>Revenue reports, occupancy rates, popular movies.</p>
-                <img src="2.png" alt="Reporting interface" class="standard-size" style="width: 700px; height: 350px; object-fit: contain;">
+            <div class="slide-body">                <p>Revenue reports, occupancy rates, popular movies.</p>
+                <img src="3.png" alt="Reporting interface" class="report-image">
                 <pre><code class="language-python"># From report_model.py
 class ReportModel:
     def __init__(self):
@@ -657,9 +693,8 @@ class ReportModel:
             <div class="slide-header">
                 <h2>Occupancy Rates (Visualization)</h2>
                 <img src="logo.jpg" alt="Cinema Logo" class="header-logo">            </div>
-            <div class="slide-body">
-                <p>Visualization of screening occupancy rates.</p>
-                <img src="3.png" alt="Occupancy rate chart" class="standard-size" style="width: 700px; height: 350px; object-fit: contain;">
+            <div class="slide-body">                <p>Visualization of screening occupancy rates.</p>
+                <img src="2.png" alt="Occupancy rate chart" class="report-image">
                 <pre><code class="language-python"># From report_model.py
 def get_occupancy_rates(self):
     """
@@ -734,7 +769,6 @@ def backup_mysql_db(user, password, db_name, backup_dir="backups", mysqldump_pat
             <div class="slide-body">
                 <ul>
                     <li>Connection Pooling</li>
-                    <li>Transaction Management</li>
                     <li>Audit Logging</li>
                     <li>Data Visualization (Matplotlib)</li>
                     <li>Auto-completion</li>
@@ -828,6 +862,7 @@ python main.py
             </div>
             <div class="slide-body">
                 <p>Thank you for your attention!</p>
+                <img src="nem-gach.jpg" alt="Thank You" class="standard-size">
                 </div>
         </div>
 
